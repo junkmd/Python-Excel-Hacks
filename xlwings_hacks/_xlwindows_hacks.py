@@ -38,6 +38,35 @@ class ListObjects(xlwindows.Collection):
     def parent(self):
         return xlwindows.Sheet(xl=self.xl.Parent)
 
+
+def _sheet_attr_listobjects(sheet):
+    """
+    Returns the listobjects implement of the sheet.
+
+    Arguments
+    ---------
+    sheet : xlwings.Sheet.impl or xlwings.xlplatform.Sheet
+
+    Examples
+    --------
+
+    .. code-block:: python
+
+        import xlwings as xw
+
+        class SubclassOfSheet(xw.Sheet):
+            @property
+            def listobjects(self):
+                return _sheet_attr_listobjects(self.impl)
+
+        wb = xw.Book()
+        ws = SubclassOfSheet(impl=wb.sheets[0].impl)
+        lo = ws.listobjects
+
+    """
+    return ListObjects(sheet.xl.ListObjects)
+
+
 if __name__ == '__main__':
     import xlwings as xw
 
@@ -45,7 +74,7 @@ if __name__ == '__main__':
     ws = wb.sheets[0]
     rng = ws.range((1, 1))
 
-    impl_los = ListObjects(ws.impl.xl.ListObjects)
+    impl_los = _attr_listobjects(ws.impl)
 
     print(len(impl_los))
 
