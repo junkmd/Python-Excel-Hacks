@@ -55,6 +55,9 @@ class ListObjects(xlmain.Collection):
 class SheetWithListObject(xw.Sheet):
     @property
     def listobjects(self):
+        """
+        Returns a ListObjects.
+        """
         return ListObjects(
             xlplatform_hacks._sheet_attr_listobjects(
                 self.impl))
@@ -65,11 +68,8 @@ if __name__ == '__main__':
 
     wb = xw.Book()
     ws = SheetWithListObject(impl=wb.sheets[0].impl)
-    rng = ws.range((1, 1))
-
-    # impl_los = xlplatform_hacks.ListObjects(ws.impl.xl.ListObjects)
-    # los = ListObjects(impl_los)
     los = ws.listobjects
+    rng = ws.range((1, 1))
 
     print(len(los))
 
@@ -93,3 +93,5 @@ if __name__ == '__main__':
 
     for lo in los:
         print(lo.name)
+
+    print(los[0].name)
