@@ -22,6 +22,7 @@ if __name__ == '__main__':
     los = ListObjects(xlplatform_hacks._attr_listobjects(ws.impl))
     rng = ws.range((1, 1))
 
+    # What about we implement ListObjects.add method ?
     myListObject = ws.api.ListObjects.Add(
         SourceType=0,
         Source=CONN_STR,
