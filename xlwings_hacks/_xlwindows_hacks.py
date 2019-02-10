@@ -105,6 +105,18 @@ class QueryTable(BaseTable):
 class QueryTables(BaseTables):
     _wrap = QueryTable
 
+    def add(self, connection, destination, sql=None):
+        if sql is None:
+            xl = self.xl.Add(
+                Connection=connection,
+                Destination=destination.api)
+        else:
+            xl = self.xl.Add(
+                Connection=connection,
+                Destination=destination.api,
+                Sql=sql)
+        return QueryTable(xl)
+
 
 def _attr_querytables(obj):
     return _attr_tables(QueryTables, obj.xl.QueryTables)

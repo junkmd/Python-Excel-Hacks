@@ -2,10 +2,11 @@ import xlwings.main as xlmain
 import sys
 
 if sys.platform.startswith('win'):
-    import _xlwindows_hacks as xlplatform_hacks
+    from . import _xlwindows_hacks as xlplatform_hacks
 else:
     pass
-    # import _xlmac_hacks as xlplatform_hacks
+    # from . import _xlmac_hacks as xlplatform_hacks
+    # not yet implemented.
 
 
 class BaseTable(object):
@@ -92,46 +93,40 @@ class QueryTable(BaseTable):
 
 
 class QueryTables(BaseTables):
+    """
+    A collection of all :meth:`querytable <QueryTable>` objects:
+
+    Examples
+    --------
+
+    .. code-block:: python
+
+        import xlwings as xw
+
+        wb = xw.Book()
+        ws = wb.sheets.add()
+        rng = ws.range((1, 1))
+        qts = QueryTables(xlplatform_hacks._attr_querytables(ws.impl))
+    """
     _wrap = QueryTable
 
+    def add(self, connection, destination, sql=None):
+        """
+        Creates a new QueryTable.
 
-if __name__ == '__main__':
-    import xlwings as xw
+        Parameters
+        ----------
+        connection : str, ADO/DAO recordset, web query, data finder, text file
+            A datasource of the table.
+        destination : Range
+            A range in the upper-left corner of the Sheet.
+        sql : str, default None
+            A SQL query str.
 
-    CONN_STR = \
-        "ODBC;"\
-        "DSN=MS Access Database;"\
-        "DBQ=C:\python\Access2003.mdb;"\
-        "DefaultDir=C:\python\Access2003.mdb;"\
-        "DriverId=25;"\
-        "FIL=MS Access;"\
-        "MaxBufferSize=2048;"\
-        "PageTimeout=5;"
-
-    sqlstr = "SELECT * FROM 顧客名"
-
-    wb = xw.Book()
-
-    ws = SheetWithListObject(impl=wb.sheets.add().impl)
-    los = ws.listobjects
-    rng = ws.range((1, 1))
-
-    myListObject = ws.api.ListObjects.Add(
-        SourceType=0,
-        Source=CONN_STR,
-        LinkSource=True,
-        Destination=rng.api)
-
-    lo = los[0]
-    lo.querytable.command_text = sqlstr
-    lo.refresh()
-
-    ws = wb.sheets.add()
-    qts = QueryTables(xlplatform_hacks._attr_querytables(ws.impl))
-    rng = ws.range((1, 1))
-
-    myQueryTable = ws.api.QueryTables.Add(
-        CONN_STR, rng.api, sqlstr)
-
-    qt = qts[0]
-    qt.refresh()
+        -------
+        """
+        impl = self.impl.add(
+            connection,
+            destination.impl,
+            sql)
+        return self._wrap(impl)
