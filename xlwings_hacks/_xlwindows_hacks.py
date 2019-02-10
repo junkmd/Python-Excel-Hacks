@@ -71,6 +71,14 @@ class ListObject(BaseTable):
     def querytable(self):
         return QueryTable(self.xl.QueryTable)
 
+    @property
+    def showtotals(self):
+        return self.xl.ShowTotals
+
+    @showtotals.setter
+    def showtotals(self, value):
+        self.xl.ShowTotals = value
+
 
 class ListObjects(BaseTables):
     _wrap = ListObject
@@ -100,6 +108,10 @@ class QueryTable(BaseTable):
     @command_text.setter
     def command_text(self, text):
         self.xl.CommandText = text
+
+    @property
+    def listobject(self):
+        return ListObject(self.xl.ListObject)
 
 
 class QueryTables(BaseTables):

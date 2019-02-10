@@ -58,20 +58,17 @@ class ListObject(BaseTable):
     def querytable(self):
         return QueryTable(self.impl.querytable)
 
+    @property
+    def showtotals(self):
+        return self.impl.showtotals
+
+    @showtotals.setter
+    def showtotals(self, value):
+        self.impl.showtotals = value
+
 
 class ListObjects(BaseTables):
     _wrap = ListObject
-
-
-class SheetWithListObject(xlmain.Sheet):
-    @property
-    def listobjects(self):
-        """
-        Returns a ListObjects.
-        """
-        return ListObjects(
-            xlplatform_hacks._attr_listobjects(
-                self.impl))
 
 
 class QueryTable(BaseTable):
@@ -90,6 +87,10 @@ class QueryTable(BaseTable):
     @command_text.setter
     def command_text(self, text):
         self.impl.command_text = text
+
+    @property
+    def listobject(self):
+        return ListObject(self.impl.listobject)
 
 
 class QueryTables(BaseTables):
