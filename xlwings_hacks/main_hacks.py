@@ -10,6 +10,7 @@ else:
 
 
 class BaseTable(object):
+    """internal class."""
     def __init__(self, impl=None):
         self.impl = impl
 
@@ -36,12 +37,20 @@ class BaseTable(object):
         return self.impl.name
 
     def refresh(self):
+        """
+        Updates an external data range.
+        For only based on the results of a SQL query.
+        """
         self.impl.refresh()
 
 
 class BaseTables(xlmain.Collection):
+    """internal class."""
     @property
     def parent(self):
+        """
+        Returns the parent of the object.
+        """
         return xlmain.Sheet(impl=self.impl.parent)
 
     @property
@@ -54,12 +63,23 @@ class BaseTables(xlmain.Collection):
 
 
 class ListObject(BaseTable):
+    """
+    Represents a ListObject object.
+    An Object in the ListObjects collection.
+    """
     @property
     def querytable(self):
+        """
+        Returns the QueryTable object that provides a link
+        for the ListObject object to the list server.
+        """
         return QueryTable(self.impl.querytable)
 
     @property
     def showtotals(self):
+        """
+        Gets or sets whether the Total row is visible.
+        """
         return self.impl.showtotals
 
     @showtotals.setter
@@ -68,10 +88,18 @@ class ListObject(BaseTable):
 
     @property
     def listcolumns(self):
+        """
+        Returns a ListColumns collection that represents
+        all the columns in a ListObject object.
+        """
         return ListColumns(self.impl.listcolumns)
 
 
 class ListObjects(BaseTables):
+    """
+    A collection of all the ListObject objects on a worksheet.
+    Each ListObject object represents a table in the worksheet.
+    """
     _wrap = ListObject
 
 
@@ -82,10 +110,17 @@ class BaseListRowColumn(object):
 
     @property
     def api(self):
+        """
+        Returns the native object (``pywin32`` or ``appscript`` obj)
+        of the engine being used.
+        """
         return self.impl
 
     @property
     def parent(self):
+        """
+        Returns the parent of the object.
+        """
         return ListObject(impl=self.impl.parent)
 
 
@@ -99,10 +134,16 @@ class BaseListRowsColumns(xlmain.Collection):
 
     @property
     def parent(self):
+        """
+        Returns the parent of the object.
+        """
         return ListObjects(impl=self.impl.parent)
 
 
 class ListColumn(BaseListRowColumn):
+    """
+    Represents a column in a table.
+    """
     @property
     def name(self):
         return self.impl.name
@@ -113,6 +154,9 @@ class ListColumn(BaseListRowColumn):
 
     @property
     def totals_calculation(self):
+        """
+        Gets or sets determineing the type of calculation in the Totals row.
+        """
         return self.impl.totals_calculation
 
     @totals_calculation.setter
@@ -121,12 +165,25 @@ class ListColumn(BaseListRowColumn):
 
 
 class ListColumns(BaseListRowsColumns):
+    """
+    A collection of all the ListColumn objects in the specified ListObject.
+    """
     _wrap = ListColumn
 
 
 class QueryTable(BaseTable):
+    """
+    Represents a QueryTable object.
+    An Object in the QueryTables collection.
+    """
     @property
     def background_query(self):
+        """
+        Gets or sets the performance of refreshing to True or False.
+
+            True: The query table are performed asynchronously.
+            False: The query table are NOT performed asynchronously.
+        """
         return self.impl.background_query
 
     @background_query.setter
@@ -135,6 +192,9 @@ class QueryTable(BaseTable):
 
     @property
     def command_text(self):
+        """
+        Returns or sets the command string for the data source.
+        """
         return self.impl.command_text
 
     @command_text.setter
@@ -143,12 +203,16 @@ class QueryTable(BaseTable):
 
     @property
     def listobject(self):
+        """
+        Returns a ListObject object for the QueryTable object.
+        """
         return ListObject(self.impl.listobject)
 
 
 class QueryTables(BaseTables):
     """
-    A collection of all :meth:`querytable <QueryTable>` objects:
+    A collection of all QueryTable objects on a worksheet.
+    Each QueryTable object represents a table in the worksheet.
 
     Examples
     --------
