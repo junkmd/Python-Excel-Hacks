@@ -79,9 +79,28 @@ class ListObject(BaseTable):
     def listcolumns(self):
         return ListColumns(self.xl.ListColumns)
 
+    def unlink():
+        self.xl.Unlink()
+
 
 class ListObjects(BaseTables):
     _wrap = ListObject
+
+    def add(self, source_type, source, destination=None, has_headers='guess'):
+        if source_type == 'range':
+            xl = self.xl.Add(
+                lo_srctype_s2i[source_type],
+                source.api,
+                None,
+                yng_s2i[has_headers])
+        else:
+            xl = self.xl.Add(
+                SourceType=lo_srctype_s2i[source_type],
+                Source=source,
+                LinkSource=True,
+                XlListObjectHasHeaders=yng_s2i[has_headers],
+                Destination=destination.api)
+        return self._wrap(xl)
 
 
 def _attr_listobjects(obj):
@@ -126,11 +145,11 @@ class ListColumn(BaseListRowColumn):
 
     @property
     def totals_calculation(self):
-        return totals_i2s[self.xl.TotalsCalculation]
+        return totals_calc_i2s[self.xl.TotalsCalculation]
 
     @totals_calculation.setter
     def totals_calculation(self, calculation):
-        self.xl.TotalsCalculation = totals_s2i[calculation]
+        self.xl.TotalsCalculation = totals_calc_s2i[calculation]
 
 
 class ListColumns(BaseListRowsColumns):
@@ -183,7 +202,7 @@ def _attr_querytables(obj):
     return _attr_tables(QueryTables, obj.xl.QueryTables)
 
 # --- constants ---
-totals_s2i = {
+totals_calc_s2i = {
     'average': 2,  # TotalsCalculation.xlTotalsCalculationAverage
     'count': 3,  # TotalsCalculation.xlTotalsCalculationCount
     'countnums': 4,  # TotalsCalculation.xlTotalsCalculationCountNums
@@ -196,4 +215,21 @@ totals_s2i = {
     'var': 8  # TotalsCalculation.xlTotalsCalculationVar
     }
 
-totals_i2s = {v: k for k, v in totals_s2i.items()}
+totals_calc_i2s = {v: k for k, v in totals_calc_s2i.items()}
+
+lo_srctype_s2i = {
+    'external': 0,  # ListObjectSourceType.xlSrcExternal
+    'query': 3,  # ListObjectSourceType.xlSrcQuery
+    'range': 1,  # ListObjectSourceType.xlSrcRange
+    'xml': 2  # ListObjectSourceType.xlSrcXml
+    }
+
+lo_srctype_i2s = {v: k for k, v in lo_srctype_s2i.items()}
+
+yng_s2i = {
+    'guess': 0,  # YesNoGuess.xlGuess
+    'no': 2,  # YesNoGuess.xlNo
+    'yes': 1  # YesNoGuess.xlYes
+    }
+
+yng_i2s = {v: k for k, v in yng_s2i.items()}

@@ -1,42 +1,51 @@
+import xlwings as xw
+from xlwings_hacks.main_hacks import Sheet_Hacked
+from xlwings.constants import *
+
 
 if __name__ == '__main__':
-    import xlwings as xw
-    from xlwings_hacks.main_hacks import xlplatform_hacks, \
-        ListObjects, QueryTables
 
-    CONN_STR = \
+    MDB_FILE_FULLPATH = r"C:\python\Access2003.mdb"
+
+    ACCESS_CONN_STR = \
         "ODBC;"\
         "DSN=MS Access Database;"\
-        "DBQ=C:\python\Access2003.mdb;"\
-        "DefaultDir=C:\python\Access2003.mdb;"\
+        "DBQ=%s;"\
+        "DefaultDir=%s;"\
         "DriverId=25;"\
         "FIL=MS Access;"\
         "MaxBufferSize=2048;"\
         "PageTimeout=5;"
 
-    sqlstr = "SELECT * FROM 顧客名"
+    CONN_STR = ACCESS_CONN_STR % (MDB_FILE_FULLPATH, MDB_FILE_FULLPATH)
+
+    sqlstr = "SELECT * FROM Test_Table"
 
     wb = xw.Book()
 
-    ws = xw.Sheet(impl=wb.sheets.add().impl)
-    los = ListObjects(xlplatform_hacks._attr_listobjects(ws.impl))
+    ws = Sheet_Hacked(impl=wb.sheets.add().impl)
+    los = ws.listobjects
     rng = ws.range((1, 1))
 
-    # What about we implement ListObjects.add method ?
-    myListObject = ws.api.ListObjects.Add(
-        SourceType=0,
-        Source=CONN_STR,
-        LinkSource=True,
-        Destination=rng.api)
-
-    lo = los[0]
+    lo = los.add('external', CONN_STR, rng)
     lo.querytable.command_text = sqlstr
     lo.refresh()
+    lo.querytable.listobject.showtotals = True
 
-    ws = wb.sheets.add()
-    qts = QueryTables(xlplatform_hacks._attr_querytables(ws.impl))
+    for lc in lo.listcolumns:
+        lc.name = lc.name + "_"
+        lc.totals_calculation = "none"
+
+    ws = Sheet_Hacked(impl=wb.sheets.add().impl)
+    qts = ws.querytables
     rng = ws.range((1, 1))
 
     qt = qts.add(CONN_STR, rng, sqlstr)
 
     qt.refresh()
+
+    ws = Sheet_Hacked(impl=wb.sheets.add().impl)
+    for i in range(1, 4):
+        ws.range(1, i).value = "header_%s" % i
+    lo = ws.listobjects.add(
+        'range', ws.range((1, 1), (3, 3)), has_headers='yes')

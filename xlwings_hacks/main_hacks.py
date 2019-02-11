@@ -94,6 +94,12 @@ class ListObject(BaseTable):
         """
         return ListColumns(self.impl.listcolumns)
 
+    def unlink(self):
+        """
+        Removes the link to a DB et al.
+        """
+        self.impl.unlink()
+
 
 class ListObjects(BaseTables):
     """
@@ -101,6 +107,40 @@ class ListObjects(BaseTables):
     Each ListObject object represents a table in the worksheet.
     """
     _wrap = ListObject
+
+    def add(self, source_type, source, destination=None, has_headers='guess'):
+        """
+        Creates a new list object.
+
+        Parameters
+        ----------
+        source_type : 'external', 'query', 'range' or 'xml'
+            Indicates the kind of source for the query.
+        source : str or Range.
+            If source_type was 'range', must be Range.
+        destination : Range or None.
+            If source_type was 'range', must be None.
+        has_headers : 'yes', 'no' or default 'guess'
+            'guess' : Excel determines whether there is a header.
+            'yes' : Top row of range will be header.
+            'no' : The header row will be added to top of the entire range.
+
+        -------
+        """
+        if destination is not None:
+            dest = destination.impl
+        else:
+            dest = None
+
+        if source_type == 'range':
+            src = source.impl
+        else:
+            src = source
+
+        return ListObject(
+            self.impl.add(
+                source_type, src, dest, has_headers)
+            )
 
 
 class BaseListRowColumn(object):
@@ -221,10 +261,7 @@ class QueryTables(BaseTables):
 
         import xlwings as xw
 
-        wb = xw.Book()
-        ws = wb.sheets.add()
-        rng = ws.range((1, 1))
-        qts = QueryTables(xlplatform_hacks._attr_querytables(ws.impl))
+        # now rewriting...
     """
     _wrap = QueryTable
 
@@ -248,3 +285,33 @@ class QueryTables(BaseTables):
             destination.impl,
             sql)
         return self._wrap(impl)
+
+
+# --- implemented sheet ---
+class Sheet_Hacked(xlmain.Sheet):
+    """
+    Hacked xlwings.main.Sheet
+    """
+    def __init__(self, impl):
+        xlmain.Sheet.__init__(self, impl=impl)
+
+    @property
+    def listobjects(self):
+        """
+        A collection of all the ListObject objects on a worksheet.
+        Each ListObject object represents a table in the worksheet.
+        """
+        return ListObjects(
+            impl=xlplatform_hacks._attr_listobjects(self.impl)
+        )
+
+    @property
+    def querytables(self):
+        """
+        Represents a worksheet table built from data returned from
+        an external data source,
+        such as an SQL server or a Microsoft Access database.
+        """
+        return QueryTables(
+            impl=xlplatform_hacks._attr_querytables(self.impl)
+        )
