@@ -13,10 +13,6 @@ class BaseTable(object):
         return self.xl
 
     @property
-    def api(self):
-        return self.xl
-
-    @property
     def name(self):
         return self.xl.Name
 
@@ -79,6 +75,10 @@ class ListObject(BaseTable):
     def showtotals(self, value):
         self.xl.ShowTotals = value
 
+    @property
+    def listcolumns(self):
+        return ListColumns(self.xl.ListColumns)
+
 
 class ListObjects(BaseTables):
     _wrap = ListObject
@@ -86,6 +86,55 @@ class ListObjects(BaseTables):
 
 def _attr_listobjects(obj):
     return _attr_tables(ListObjects, obj.xl.ListObjects)
+
+
+class BaseListRowColumn(object):
+    """internal class."""
+    def __init__(self, xl):
+        self.xl = xl
+
+    @property
+    def api(self):
+        return self.xl
+
+    @property
+    def parent(self):
+        return ListObject(xl=self.xl.Parent)
+
+
+class BaseListRowsColumns(xlwindows.Collection):
+    """
+    internal class.
+    _wrap attribute must be not None.
+    """
+    def __init__(self, xl):
+        xlwindows.Collection.__init__(self, xl)
+
+    @property
+    def parent(self):
+        return ListObjects(xl=self.xl.Parent)
+
+
+class ListColumn(BaseListRowColumn):
+    @property
+    def name(self):
+        return self.xl.Name
+
+    @name.setter
+    def name(self, value):
+        self.xl.Name = value
+
+    @property
+    def totals_calculation(self):
+        return totals_i2s[self.xl.TotalsCalculation]
+
+    @totals_calculation.setter
+    def totals_calculation(self, calculation):
+        self.xl.TotalsCalculation = totals_s2i[calculation]
+
+
+class ListColumns(BaseListRowsColumns):
+    _wrap = ListColumn
 
 
 class QueryTable(BaseTable):
@@ -133,8 +182,18 @@ class QueryTables(BaseTables):
 def _attr_querytables(obj):
     return _attr_tables(QueryTables, obj.xl.QueryTables)
 
+# --- constants ---
+totals_s2i = {
+    'average': 2,  # TotalsCalculation.xlTotalsCalculationAverage
+    'count': 3,  # TotalsCalculation.xlTotalsCalculationCount
+    'countnums': 4,  # TotalsCalculation.xlTotalsCalculationCountNums
+    'custom': 9,  # TotalsCalculation.xlTotalsCalculationCustom
+    'max': 6,  # TotalsCalculation.xlTotalsCalculationMax
+    'min': 5,  # TotalsCalculation.xlTotalsCalculationMin
+    'none': 0,  # TotalsCalculation.xlTotalsCalculationNone
+    'stddev': 7,  # TotalsCalculation.xlTotalsCalculationStdDev
+    'sum': 1,  # TotalsCalculation.xlTotalsCalculationSum
+    'var': 8  # TotalsCalculation.xlTotalsCalculationVar
+    }
 
-if __name__ == '__main__':
-    import xlwings as xw
-
-    pass
+totals_i2s = {v: k for k, v in totals_s2i.items()}

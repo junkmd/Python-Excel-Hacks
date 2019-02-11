@@ -66,9 +66,62 @@ class ListObject(BaseTable):
     def showtotals(self, value):
         self.impl.showtotals = value
 
+    @property
+    def listcolumns(self):
+        return ListColumns(self.impl.listcolumns)
+
 
 class ListObjects(BaseTables):
     _wrap = ListObject
+
+
+class BaseListRowColumn(object):
+    """internal class."""
+    def __init__(self, impl):
+        self.impl = impl
+
+    @property
+    def api(self):
+        return self.impl
+
+    @property
+    def parent(self):
+        return ListObject(impl=self.impl.parent)
+
+
+class BaseListRowsColumns(xlmain.Collection):
+    """
+    internal class.
+    _wrap attribute must be not None.
+    """
+    def __init__(self, impl):
+        xlmain.Collection.__init__(self, impl)
+
+    @property
+    def parent(self):
+        return ListObjects(impl=self.impl.parent)
+
+
+class ListColumn(BaseListRowColumn):
+    @property
+    def name(self):
+        return self.impl.name
+
+    @name.setter
+    def name(self, value):
+        self.impl.name = value
+
+    @property
+    def totals_calculation(self):
+        return self.impl.totals_calculation
+
+    @totals_calculation.setter
+    def totals_calculation(self, calculation):
+        self.impl.totals_calculation = calculation
+
+
+class ListColumns(BaseListRowsColumns):
+    _wrap = ListColumn
 
 
 class QueryTable(BaseTable):
