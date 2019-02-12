@@ -9,6 +9,7 @@ else:
     # not yet implemented.
 
 
+# --- Base of ListObject and QueryTable ---
 class BaseTable(object):
     """internal class."""
     def __init__(self, impl=None):
@@ -27,7 +28,7 @@ class BaseTable(object):
         """
         Returns the parent of the object.
         """
-        return Sheet(impl=self.impl.parent)
+        return Sheet_Hacked(impl=self.impl.parent)
 
     @property
     def name(self):
@@ -51,7 +52,7 @@ class BaseTables(xlmain.Collection):
         """
         Returns the parent of the object.
         """
-        return xlmain.Sheet(impl=self.impl.parent)
+        return Sheet_Hacked(impl=self.impl.parent)
 
     @property
     def api(self):
@@ -62,6 +63,7 @@ class BaseTables(xlmain.Collection):
         return self.impl.api
 
 
+# --- ListObject ---
 class ListObject(BaseTable):
     """
     Represents a ListObject object.
@@ -99,6 +101,14 @@ class ListObject(BaseTable):
         Removes the link to a DB et al.
         """
         self.impl.unlink()
+
+    @property
+    def range(self):
+        return xlmain.Range(impl=self.impl.range)
+
+    @property
+    def header_row(self):
+        return xlmain.Range(impl=self.impl.header_row)
 
 
 class ListObjects(BaseTables):
@@ -143,6 +153,7 @@ class ListObjects(BaseTables):
             )
 
 
+# --- Base of ListRowColumn ---
 class BaseListRowColumn(object):
     """internal class."""
     def __init__(self, impl):
@@ -163,6 +174,10 @@ class BaseListRowColumn(object):
         """
         return ListObject(impl=self.impl.parent)
 
+    @property
+    def range(self):
+        return xlmain.Range(impl=self.impl.range)
+
 
 class BaseListRowsColumns(xlmain.Collection):
     """
@@ -177,9 +192,10 @@ class BaseListRowsColumns(xlmain.Collection):
         """
         Returns the parent of the object.
         """
-        return ListObjects(impl=self.impl.parent)
+        return ListObject(impl=self.impl.parent)
 
 
+# --- ListColumn ---
 class ListColumn(BaseListRowColumn):
     """
     Represents a column in a table.
@@ -211,6 +227,7 @@ class ListColumns(BaseListRowsColumns):
     _wrap = ListColumn
 
 
+# --- QueryTable ---
 class QueryTable(BaseTable):
     """
     Represents a QueryTable object.
@@ -287,12 +304,239 @@ class QueryTables(BaseTables):
         return self._wrap(impl)
 
 
+# --- PageSetup ---
+class PageSetup(object):
+    """
+    Represents the page setup description.
+    """
+    def __init__(self, impl=None):
+        self.impl = impl
+
+    def __enter__(self):
+        self.impl.__enter__()
+        return self
+
+    def __exit__(self, exception_type, exception_value, traceback):
+        self.impl.__exit__(exception_type, exception_value, traceback)
+
+    @property
+    def api(self):
+        """
+        Returns the native object (``pywin32`` or ``appscript`` obj)
+        of the engine being used.
+        """
+        return self.impl.api
+
+    @property
+    def parent(self):
+        """
+        Returns the parent of the object.
+        """
+        return Sheet_Hacked(impl=self.impl.parent)
+
+    @property
+    def fit_to_tall(self):
+        """
+        Returns or sets the number of pages tall the worksheet
+        will be scaled to when it's printed.
+        If the zoom property is True , this is ignored.
+        """
+        return self.impl.fit_to_tall
+
+    @fit_to_tall.setter
+    def fit_to_tall(self, pages):
+        self.impl.fit_to_tall = pages
+
+    @property
+    def fit_to_wide(self):
+        """
+        Returns or sets the number of pages wide the worksheet
+        will be scaled to when it's printed.
+        If the zoom property is True , this is ignored.
+        """
+        return self.impl.fit_to_wide
+
+    @fit_to_wide.setter
+    def fit_to_wide(self, pages):
+        self.impl.fit_to_wide = pages
+
+    @property
+    def zoom(self):
+        """
+        Returns or sets a percentage(between 10 and 400 percent) or False that
+        represents scale of the worksheet for printing.
+        """
+        return self.impl.zoom
+
+    @zoom.setter
+    def zoom(self, ratio):
+        self.impl.zoom = ratio
+
+    @property
+    def orientation(self):
+        """
+        Returns or sets a 'portrait'(taller) or 'landscape'(wider) that
+        represents the printing mode.
+        """
+        return self.impl.orientation
+
+    @orientation.setter
+    def orientation(self, aspect):
+        self.impl.orientation = aspect
+
+    @property
+    def paper_size(self):
+        """
+        Returns or sets the size of the paper.
+        """
+        return self.impl.paper_size
+
+    @paper_size.setter
+    def paper_size(self, size):
+        self.impl.paper_size = size
+
+    @property
+    def header_right(self):
+        """
+        Returns or sets the text of header.
+        """
+        return self.impl.header_right
+
+    @header_right.setter
+    def header_right(self, text):
+        self.impl.header_right = text
+
+    @property
+    def header_left(self):
+        """
+        Returns or sets the text of header.
+        """
+        return self.impl.header_left
+
+    @header_left.setter
+    def header_left(self, text):
+        self.impl.header_left = text
+
+    @property
+    def header_center(self):
+        """
+        Returns or sets the text of header.
+        """
+        return self.impl.header_center
+
+    @header_center.setter
+    def header_center(self, text):
+        self.impl.header_center = text
+
+    @property
+    def footer_right(self):
+        """
+        Returns or sets the text of footer.
+        """
+        return self.impl.footer_right
+
+    @footer_right.setter
+    def footer_right(self, text):
+        self.impl.footer_right = text
+
+    @property
+    def footer_left(self):
+        """
+        Returns or sets the text of footer.
+        """
+        return self.impl.footer_left
+
+    @footer_left.setter
+    def footer_left(self, text):
+        self.impl.footer_left = text
+
+    @property
+    def footer_center(self):
+        """
+        Returns or sets the text of footer.
+        """
+        return self.impl.footer_center
+
+    @footer_center.setter
+    def footer_center(self, text):
+        self.impl.footer_center = text
+
+    @property
+    def margin_top(self):
+        """
+        Returns or sets the size of the margin.
+        """
+        return self.impl.margin_top
+
+    @margin_top.setter
+    def margin_top(self, pts):
+        self.impl.margin_top = pts
+
+    @property
+    def margin_bottom(self):
+        """
+        Returns or sets the size of the margin.
+        """
+        return self.impl.margin_bottom
+
+    @margin_bottom.setter
+    def margin_bottom(self, pts):
+        self.impl.margin_bottom = pts
+
+    @property
+    def margin_right(self):
+        """
+        Returns or sets the size of the margin.
+        """
+        return self.impl.margin_right
+
+    @margin_right.setter
+    def margin_right(self, pts):
+        self.impl.margin_right = pts
+
+    @property
+    def margin_left(self):
+        """
+        Returns or sets the size of the margin.
+        """
+        return self.impl.margin_left
+
+    @margin_left.setter
+    def margin_left(self, pts):
+        self.impl.margin_left = pts
+
+
 # --- implemented sheet ---
 class Sheet_Hacked(xlmain.Sheet):
     """
-    Hacked xlwings.main.Sheet
+    Hacked xlwings.main.Sheet.
+
+    Examples
+    --------
+
+    .. code-block:: python
+
+        import xlwings as xw
+
+        wb = xw.Book()
+        ws = Sheet_Hacked(impl=wb.sheets.add().impl)
+        # or
+        # ws = Sheet_Hacked(impl=wb.sheets.add[0].impl)
+    ----------
+
     """
     def __init__(self, impl):
+        """
+        Construct an Sheet object with the extra properties.
+
+        Parameters
+        ----------
+        impl : xlwings.Sheet.impl or xlwings.main.xlplatform.Sheet
+
+        """
+        if not isinstance(impl, xlmain.xlplatform.Sheet):
+            raise TypeError(
+                "'impl' must be instance of xlwings.Sheet.impl")
         xlmain.Sheet.__init__(self, impl=impl)
 
     @property
@@ -314,4 +558,29 @@ class Sheet_Hacked(xlmain.Sheet):
         """
         return QueryTables(
             impl=xlplatform_hacks._attr_querytables(self.impl)
+        )
+
+    @property
+    def pagesetup(self):
+        """
+        Contains all page setup attributes (left margin, bottom margin,
+        paper size, and so on) as properties.
+
+        Suspends communication with the printer within the 'with' block.
+
+        Examples
+        --------
+
+        .. code-block:: python
+
+            import xlwings as xw
+
+            ws = Sheet_Hacked(xw.Sheet())
+
+            with ws.pagesetup as psu:
+                psu.fit_to_tall = 1
+
+        """
+        return PageSetup(
+            impl=xlplatform_hacks._attr_pagesetup(self.impl)
         )
