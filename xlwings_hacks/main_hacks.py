@@ -319,6 +319,18 @@ class PageSetup(object):
     def __exit__(self, exception_type, exception_value, traceback):
         self.impl.__exit__(exception_type, exception_value, traceback)
 
+    def inches2pts(self, inches):
+        """
+        Converts a measurement from inches to points.
+        """
+        return self.impl.inches2pts(inches)
+
+    def cms2pts(self, cms):
+        """
+        Converts a measurement from centimeters to points.
+        """
+        return self.impl.cms2pts(cms)
+
     @property
     def api(self):
         """

@@ -223,13 +223,14 @@ def _attr_querytables(obj):
 class PageSetup(object):
     def __init__(self, xl):
         self.xl = xl
+        self._xlapp = self.xl.Application
 
     def __enter__(self):
         """
         Set the PrintCommunication property to False to speed up
         the execution of code that sets PageSetup properties.
         """
-        self.parent.book.app.api.PrintCommunication = False
+        self._xlapp.PrintCommunication = False
         return self
 
     def __exit__(self, exception_type, exception_value, traceback):
@@ -237,7 +238,13 @@ class PageSetup(object):
         Set the PrintCommunication property to True after
         setting properties to commit all cached PageSetup commands.
         """
-        self.parent.book.app.api.PrintCommunication = True
+        self._xlapp.PrintCommunication = True
+
+    def inches2pts(self, inches):
+        return self._xlapp.InchesToPoints(inches)
+
+    def cms2pts(self, cms):
+        return self.CentimetersToPoints(cms)
 
     @property
     def api(self):
