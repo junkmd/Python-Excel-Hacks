@@ -86,11 +86,19 @@ class ListObject(BaseTable):
 
     @property
     def range(self):
-        return self.parent.range(self.xl.Range.Address)
+        return xlwindows.Range(xl=self.xl.Range)
 
     @property
     def header_row(self):
-        return self.parent.range(self.xl.HeaderRowRange.Address)
+        return xlwindows.Range(xl=self.xl.HeaderRowRange)
+
+    @property
+    def body(self):
+        return xlwindows.Range(xl=self.xl.DataBodyRange)
+
+    @property
+    def totals_row(self):
+        return xlwindows.Range(xl=self.xl.TotalsRowRange)
 
 
 class ListObjects(BaseTables):
@@ -133,7 +141,7 @@ class BaseListRowColumn(object):
 
     @property
     def range(self):
-        return self.parent.parent.range(self.xl.Range.Address)
+        return xlwindows.Range(xl=self.xl.Range)
 
 
 class BaseListRowsColumns(xlwindows.Collection):
@@ -166,6 +174,14 @@ class ListColumn(BaseListRowColumn):
     @totals_calculation.setter
     def totals_calculation(self, calculation):
         self.xl.TotalsCalculation = totals_calc_s2i[calculation]
+
+    @property
+    def body(self):
+        return xlwindows.Range(xl=self.xl.DataBodyRange)
+
+    @property
+    def total(self):
+        return xlwindows.Range(xl=self.xl.Total)
 
 
 class ListColumns(BaseListRowsColumns):

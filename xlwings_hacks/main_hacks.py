@@ -11,7 +11,9 @@ else:
 
 # --- Base of ListObject and QueryTable ---
 class BaseTable(object):
-    """internal class."""
+    """
+    internal class for ListObject and QueryTable.
+    """
     def __init__(self, impl=None):
         self.impl = impl
 
@@ -46,7 +48,9 @@ class BaseTable(object):
 
 
 class BaseTables(xlmain.Collection):
-    """internal class."""
+    """
+    internal class for ListObjects and QueryTables.
+    """
     @property
     def parent(self):
         """
@@ -104,11 +108,34 @@ class ListObject(BaseTable):
 
     @property
     def range(self):
+        """
+        Returns a Range object that represents the range to which
+        the specified list object in the above list applies.
+        """
         return xlmain.Range(impl=self.impl.range)
 
     @property
     def header_row(self):
+        """
+        Returns a Range object that represents the range of
+        the header row for a list.
+        """
         return xlmain.Range(impl=self.impl.header_row)
+
+    @property
+    def body(self):
+        """
+        Returns a Range object that represents the range of values,
+        excluding the header row, in a table.
+        """
+        return xlmain.Range(impl=self.impl.body)
+
+    @property
+    def totals_row(self):
+        """
+        Returns a Range representing the Total row.
+        """
+        return xlmain.Range(impl=self.impl.totals_row)
 
 
 class ListObjects(BaseTables):
@@ -165,7 +192,7 @@ class BaseListRowColumn(object):
         Returns the native object (``pywin32`` or ``appscript`` obj)
         of the engine being used.
         """
-        return self.impl
+        return self.impl.api
 
     @property
     def parent(self):
@@ -218,6 +245,21 @@ class ListColumn(BaseListRowColumn):
     @totals_calculation.setter
     def totals_calculation(self, calculation):
         self.impl.totals_calculation = calculation
+
+    @property
+    def body(self):
+        """
+        Returns a Range object that is the size of
+        the data portion of a column.
+        """
+        return xlmain.Range(impl=self.impl.body)
+
+    @property
+    def total(self):
+        """
+        Returns the Total row.
+        """
+        return xlmain.Range(impl=self.impl.total)
 
 
 class ListColumns(BaseListRowsColumns):
