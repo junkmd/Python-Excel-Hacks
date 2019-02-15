@@ -214,6 +214,14 @@ class QueryTable(BaseTable):
     def listobject(self):
         return ListObject(self.xl.ListObject)
 
+    @property
+    def adjust_column_width(self):
+        return self.xl.AdjustColumnWidth
+
+    @adjust_column_width.setter
+    def adjust_column_width(self, adjust):
+        self.xl.AdjustColumnWidth = adjust
+
 
 class QueryTables(BaseTables):
     _wrap = QueryTable
@@ -396,6 +404,12 @@ class PageSetup(object):
 
 def _attr_pagesetup(obj):
     return _attr_object_impl(PageSetup, obj.xl.PageSetup)
+
+
+# --- Border ---
+class BaseBorder(object):
+    def __init__(self, xl):
+        self.xl = xl
 
 
 # --- constants ---

@@ -307,6 +307,14 @@ class QueryTable(BaseTable):
         """
         return ListObject(self.impl.listobject)
 
+    @property
+    def adjust_column_width(self):
+        return self.impl.adjust_column_width
+
+    @adjust_column_width.setter
+    def adjust_column_width(self, adjust):
+        self.impl.adjust_column_width = adjust
+
 
 class QueryTables(BaseTables):
     """
