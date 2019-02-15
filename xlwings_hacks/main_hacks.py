@@ -646,3 +646,68 @@ class Sheet_Hacked(xlmain.Sheet):
         return PageSetup(
             impl=xlplatform_hacks._attr_pagesetup(self.impl)
         )
+
+
+# --- Border ---
+class Border(object):
+    def __init__(self, impl):
+        self.impl = impl
+
+    @property
+    def api(self):
+        """
+        Returns the native object (``pywin32`` or ``appscript`` obj)
+        of the engine being used.
+        """
+        return self.impl.api
+
+    @property
+    def parent(self):
+        """
+        Returns the parent of the object.
+        """
+        return xlmain.Range(impl=self.impl.parent)
+
+    @property
+    def style(self):
+        return self.impl.style
+
+    @style.setter
+    def style(self, style):
+        self.impl.style = style
+
+
+class Borders(xlmain.Collection):
+    """
+    A collection of six Border objects.
+    Order of borders are;
+    'left', 'right', 'top', 'bottom', 'diagonal_down', 'diagonal_up'
+    """
+    _wrap = Border
+
+    @property
+    def parent(self):
+        """
+        Returns the parent of the object.
+        """
+        return xlmain.Range(xl=self.impl.parent)
+
+    @property
+    def weight(self):
+        """
+        Returns or sets value that represents the weight of the border.
+        """
+        return self.impl.weight
+
+    @weight.setter
+    def weight(self, wt):
+        self.impl.weight = wt
+
+
+def get_borders_of(range):
+    """
+    Returns a collection of six Border objects.
+    Order of borders are;
+    'left', 'right', 'top', 'bottom', 'diagonal_down', 'diagonal_up'
+    """
+    return Borders(xlplatform_hacks._attr_borders(range.impl))

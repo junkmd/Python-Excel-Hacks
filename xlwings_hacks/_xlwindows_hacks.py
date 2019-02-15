@@ -407,9 +407,48 @@ def _attr_pagesetup(obj):
 
 
 # --- Border ---
-class BaseBorder(object):
+class Border(object):
     def __init__(self, xl):
         self.xl = xl
+
+    @property
+    def api(self):
+        return self.xl
+
+    @property
+    def parent(self):
+        return xlwindows.Range(xl=self.xl.Parent)
+
+    @property
+    def weight(self):
+        return bd_wt_i2s[self.xl.Weight]
+
+    @weight.setter
+    def weight(self, wt):
+        self.xl.Weight = bd_wt_s2i[wt]
+
+    @property
+    def style(self):
+        return line_style_i2s[self.xl.LineStyle]
+
+    @style.setter
+    def style(self, style):
+        self.xl.LineStyle = line_style_s2i[style]
+
+
+class Borders(xlwindows.Collection):
+    _wrap = Border
+
+    @property
+    def parent(self):
+        return xlwindows.Range(xl=self.xl.Parent)
+
+    def __call__(self, bds_index):
+        return Border(xl=self.xl(bds_index_s2i[bds_index]))
+
+
+def _attr_borders(obj):
+    return _attr_object_impl(Borders, obj.xl.Borders)
 
 
 # --- constants ---
@@ -498,3 +537,36 @@ paper_s2i = {
     }
 
 paper_i2s = {v: k for k, v in paper_s2i.items()}
+
+bds_index_s2i = {
+    'left': 7,  # BordersIndex.xlEdgeLeft
+    'right': 10,  # BordersIndex.xlEdgeRight
+    'top': 8,  # BordersIndex.xlEdgeTop
+    'bottom': 9,  # BordersIndex.xlEdgeBottom
+    'diagonal_down': 5,  # BordersIndex.xlDiagonalDown
+    'diagonal_up': 6  # BordersIndex.xlDiagonalUp
+    }
+
+bds_index_i2s = {v: k for k, v in bds_index_s2i.items()}
+
+bd_wt_s2i = {
+    'hairline': 1,  # BorderWeight.xlHairline
+    'medium': -4138,  # BorderWeight.xlMedium
+    'thick': 4,  # BorderWeight.xlThick
+    'thin': 2  # BorderWeight.xlThin
+    }
+
+bd_wt_i2s = {v: k for k, v in bd_wt_s2i.items()}
+
+line_style_s2i = {
+    'continuous': 1,  # LineStyle.xlContinuous
+    'dash': -4115,  # LineStyle.xlDash
+    'dash_dot': 4,  # LineStyle.xlDashDot
+    'dash_dotdot': 5,  # LineStyle.xlDashDotDot
+    'dot': -4118,  # LineStyle.xlDot
+    'double': -4119,  # LineStyle.xlDouble
+    'none': -4142,  # LineStyle.xlLineStyleNone
+    'slant_dashdot': 13,  # LineStyle.xlSlantDashDot
+    }
+
+line_style_i2s = {v: k for k, v in line_style_s2i.items()}
