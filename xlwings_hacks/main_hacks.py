@@ -669,12 +669,52 @@ class Border(object):
         return xlmain.Range(impl=self.impl.parent)
 
     @property
+    def weight(self):
+        """
+        Returns or sets value that represents the weight of the border.
+        'hairline', 'medium', 'thick' or 'thin'.
+        """
+        return self.impl.weight
+
+    @weight.setter
+    def weight(self, wt):
+        self.impl.weight = wt
+
+    @property
     def style(self):
+        """
+        Returns or sets the line style for the border.
+        'continuous', 'dash', 'dash_dot', 'dash_dotdot', 'dot', 'double',
+        'none', 'slant_dashdot' or None.
+        """
         return self.impl.style
 
     @style.setter
     def style(self, style):
         self.impl.style = style
+
+    @property
+    def color(self):
+        """
+        Returns or sets the primary color of the object.
+        """
+        return self.impl.color
+
+    @color.setter
+    def color(self, color_or_rgb):
+        self.impl.color = color_or_rgb
+
+    @property
+    def tint_and_shade(self):
+        """
+        Returns or sets lightens or darkens of border color.
+        From -1(darkest) to 1(lightest), and Zero(0) is neutral.
+        """
+        return self.impl.tint_and_shade
+
+    @tint_and_shade.setter
+    def tint_and_shade(self, single):
+        self.impl.tint_and_shade = single
 
 
 class Borders(xlmain.Collection):
@@ -691,17 +731,6 @@ class Borders(xlmain.Collection):
         Returns the parent of the object.
         """
         return xlmain.Range(xl=self.impl.parent)
-
-    @property
-    def weight(self):
-        """
-        Returns or sets value that represents the weight of the border.
-        """
-        return self.impl.weight
-
-    @weight.setter
-    def weight(self, wt):
-        self.impl.weight = wt
 
 
 def get_borders_of(range):

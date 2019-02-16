@@ -1,5 +1,6 @@
 '''xlwings hacks'''
 import xlwings._xlwindows as xlwindows
+import numbers
 from abc import ABC, ABCMeta, abstractmethod
 
 
@@ -429,11 +430,46 @@ class Border(object):
 
     @property
     def style(self):
-        return line_style_i2s[self.xl.LineStyle]
+        style = line_style_i2s[self.xl.LineStyle]
+        if style == 'none':
+            return None
+        else:
+            return style
 
     @style.setter
     def style(self, style):
+        if style is None:
+            style = 'none'
         self.xl.LineStyle = line_style_s2i[style]
+
+    @property
+    def color(self):
+        if self.xl is not None:
+            if self.xl.ColorIndex == xlwindows.ColorIndex.xlColorIndexNone:
+                return None
+            else:
+                return xlwindows.int_to_rgb(self.xl.Color)
+        else:
+            return None
+
+    @color.setter
+    def color(self, color_or_rgb):
+        if self.xl is not None:
+            if color_or_rgb is None:
+                self.xl.ColorIndex = xlwindows.ColorIndex.xlColorIndexNone
+                self.style = None
+            elif isinstance(color_or_rgb, int):
+                self.xl.Color = color_or_rgb
+            else:
+                self.xl.Color = xlwindows.rgb_to_int(color_or_rgb)
+
+    @property
+    def tint_and_shade(self):
+        return self.xl.TintAndShade
+
+    @tint_and_shade.setter
+    def tint_and_shade(self, single):
+        self.xl.TintAndShade = single
 
 
 class Borders(xlwindows.Collection):
@@ -444,7 +480,11 @@ class Borders(xlwindows.Collection):
         return xlwindows.Range(xl=self.xl.Parent)
 
     def __call__(self, bds_index):
-        return Border(xl=self.xl(bds_index_s2i[bds_index]))
+        if isinstance(bds_index, numbers.Number):
+            xl = [xlbd.xl for xlbd in self][bds_index]
+        else:
+            xl = self.xl(bds_index_s2i[bds_index])
+        return Border(xl=xl)
 
 
 def _attr_borders(obj):

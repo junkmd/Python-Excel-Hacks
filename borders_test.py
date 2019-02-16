@@ -35,7 +35,6 @@ if __name__ == '__main__':
 
     for bd, style in zip(bds, styles):
         bd.api.LineStyle = style
-        # bd.api.Weight = BorderWeight.xlThin
         bd.weight = "thick"
         print(i)
         i += 1
@@ -46,3 +45,19 @@ if __name__ == '__main__':
 
     bd.style = "continuous"
     bd.weight = "thick"
+
+    bds = get_borders_of(ws.range((5, 2)))
+
+    bd = bds[0]
+
+    print(bd.color)
+
+    bd.color = RgbColor.rgbRed
+
+    print(bd.color)
+
+    bd.style = None
+
+    print(bd.color)
+
+    print(bd.style)
