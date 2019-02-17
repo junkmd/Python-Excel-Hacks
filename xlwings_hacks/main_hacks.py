@@ -100,6 +100,14 @@ class ListObject(BaseTable):
         """
         return ListColumns(self.impl.listcolumns)
 
+    @property
+    def listrows(self):
+        """
+        Returns a ListColumns collection that represents
+        all the columns in a ListObject object.
+        """
+        return ListRows(self.impl.listrows)
+
     def unlink(self):
         """
         Removes the link to a DB et al.
@@ -221,6 +229,9 @@ class BaseListRowsColumns(xlmain.Collection):
         """
         return ListObject(impl=self.impl.parent)
 
+    def add(self, position=None):
+        self.impl.add(position)
+
 
 # --- ListColumn ---
 class ListColumn(BaseListRowColumn):
@@ -267,6 +278,33 @@ class ListColumns(BaseListRowsColumns):
     A collection of all the ListColumn objects in the specified ListObject.
     """
     _wrap = ListColumn
+
+    def add(self, position=None):
+        """
+        Adds a new column to the table.
+        """
+        self.impl.add(position)
+
+
+# --- ListRow ---
+class ListRow(BaseListRowColumn):
+    """
+    Represents a row in a table.
+    """
+    pass
+
+
+class ListRows(BaseListRowsColumns):
+    """
+    A collection of all the ListRow objects in the specified ListObject.
+    """
+    _wrap = ListRow
+
+    def add(self, position=None, insert=True):
+        """
+        Adds a new row to the table.
+        """
+        self.impl.add(position, insert)
 
 
 # --- QueryTable ---

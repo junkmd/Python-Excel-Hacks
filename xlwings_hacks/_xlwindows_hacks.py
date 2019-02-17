@@ -82,6 +82,10 @@ class ListObject(BaseTable):
     def listcolumns(self):
         return ListColumns(self.xl.ListColumns)
 
+    @property
+    def listrows(self):
+        return ListRows(self.xl.ListRows)
+
     def unlink():
         self.xl.Unlink()
 
@@ -157,6 +161,17 @@ class BaseListRowsColumns(xlwindows.Collection):
     def parent(self):
         return ListObjects(xl=self.xl.Parent)
 
+    def _calc_position(self, position):
+        if position is None:
+            return None
+        elif isinstance(position, int):
+            if position < 0:
+                raise KeyError('position must be equal or more than 0.')
+            else:
+                return position + 1
+        else:
+            raise TypeError('Type of position must be None or int.')
+
 
 # --- ListColumn ---
 class ListColumn(BaseListRowColumn):
@@ -187,6 +202,21 @@ class ListColumn(BaseListRowColumn):
 
 class ListColumns(BaseListRowsColumns):
     _wrap = ListColumn
+
+    def add(self, position=None):
+        self.xl.Add(self._calc_position(position))
+
+
+# --- ListColumn ---
+class ListRow(BaseListRowColumn):
+    pass
+
+
+class ListRows(BaseListRowsColumns):
+    _wrap = ListRow
+
+    def add(self, position=None, always_insert=True):
+        self.xl.Add(self._calc_position(position), always_insert)
 
 
 # --- QueryTable ---
