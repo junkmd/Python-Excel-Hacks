@@ -316,6 +316,7 @@ class ColumnOfListRow(xlmain.Range):
         for lc in self._lr.parent.listcolumns:
             if self.column == lc.range.column:
                 self._col_name = lc.name
+                break
 
     @property
     def parent(self):
