@@ -1,6 +1,7 @@
 import xlwings as xw
 from xlwings_hacks.main_hacks import Sheet_Hacked, ListObject
 from xlwings.constants import *
+from pprint import pformat
 
 
 if __name__ == '__main__':
@@ -35,14 +36,11 @@ if __name__ == '__main__':
     for lc in lo.listcolumns:
         lc.name = lc.name + "_"
         lc.totals_calculation = "none"
-        print(lc.total)
-
-    print(lo.range.address)
+        lc.range.number_format = "0!.0,\"万\";[赤]-0!.0,\"万\";0"
 
     ws = Sheet_Hacked(impl=wb.sheets.add().impl)
     qts = ws.querytables
     rng = ws.range((1, 1))
-    print(ws.name)
 
     qt = qts.add(CONN_STR, rng, sqlstr)
 
@@ -54,10 +52,11 @@ if __name__ == '__main__':
     lo = ws.listobjects.add(
         'range', ws.range((1, 1), (3, 3)), has_headers='yes')
 
+    lr = lo.listrows.add(0)
+
+    for clr in lr.columns:
+        print(clr.column_name, clr)
+
     with ws.pagesetup as psu:
         psu.fit_to_tall = 1
         psu.fit_to_wide = 0
-
-    for k, v in ListObject.__dict__.items():
-        if k[0] != "_":
-            print(k, v, type(v))

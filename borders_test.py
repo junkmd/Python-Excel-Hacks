@@ -8,37 +8,6 @@ if __name__ == '__main__':
 
     ws = wb.sheets[0]
 
-    rng = ws.range((2, 2))
-
-    bds = get_borders_of(rng)
-
-    bds_ids = [
-        BordersIndex.xlDiagonalDown,
-        BordersIndex.xlDiagonalUp,
-        BordersIndex.xlEdgeBottom,
-        BordersIndex.xlEdgeLeft,
-        BordersIndex.xlEdgeRight,
-        BordersIndex.xlEdgeTop,
-        BordersIndex.xlInsideHorizontal,
-        BordersIndex.xlInsideVertical]
-
-    styles = [
-        LineStyle.xlContinuous,
-        LineStyle.xlDash,
-        LineStyle.xlDashDot,
-        LineStyle.xlDashDotDot,
-        LineStyle.xlDot,
-        LineStyle.xlSlantDashDot
-    ]
-
-    i = 0
-
-    for bd, style in zip(bds, styles):
-        bd.api.LineStyle = style
-        bd.weight = "thick"
-        print(i)
-        i += 1
-
     rng = ws.range((3, 3))
     bds = get_borders_of(rng)
     bd = bds["top"]
@@ -47,17 +16,5 @@ if __name__ == '__main__':
     bd.weight = "thick"
 
     bds = get_borders_of(ws.range((5, 2)))
-
-    bd = bds[0]
-
-    print(bd.color)
-
-    bd.color = RgbColor.rgbRed
-
-    print(bd.color)
-
-    bd.style = None
-
-    print(bd.color)
-
-    print(bd.style)
+    for bd in list(bds)[0:4]:
+        bd.color = RgbColor.rgbRed

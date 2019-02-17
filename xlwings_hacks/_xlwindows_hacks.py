@@ -148,6 +148,9 @@ class BaseListRowColumn(object):
     def range(self):
         return xlwindows.Range(xl=self.xl.Range)
 
+    def delete(self):
+        self.xl.Delete()
+
 
 class BaseListRowsColumns(xlwindows.Collection):
     """
@@ -204,10 +207,15 @@ class ListColumns(BaseListRowsColumns):
     _wrap = ListColumn
 
     def add(self, position=None):
-        self.xl.Add(self._calc_position(position))
+        pos = self._calc_position(position)
+        if pos is None:
+            xl = self.xl.Add()
+        else:
+            xl = self.xl.Add(pos)
+        return self._wrap(xl)
 
 
-# --- ListColumn ---
+# --- ListRow ---
 class ListRow(BaseListRowColumn):
     pass
 
@@ -216,7 +224,12 @@ class ListRows(BaseListRowsColumns):
     _wrap = ListRow
 
     def add(self, position=None, always_insert=True):
-        self.xl.Add(self._calc_position(position), always_insert)
+        pos = self._calc_position(position)
+        if pos is None:
+            xl = self.xl.Add()
+        else:
+            xl = self.xl.Add(pos, always_insert)
+        return self._wrap(xl)
 
 
 # --- QueryTable ---
@@ -267,7 +280,7 @@ class QueryTables(BaseTables):
                 Connection=connection,
                 Destination=destination.api,
                 Sql=sql)
-        return QueryTable(xl)
+        return self._wrap(xl)
 
 
 def _attr_querytables(obj):

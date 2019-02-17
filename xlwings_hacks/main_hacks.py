@@ -182,7 +182,7 @@ class ListObjects(BaseTables):
         else:
             src = source
 
-        return ListObject(
+        return self._wrap(
             self.impl.add(
                 source_type, src, dest, has_headers)
             )
@@ -228,9 +228,6 @@ class BaseListRowsColumns(xlmain.Collection):
         Returns the parent of the object.
         """
         return ListObject(impl=self.impl.parent)
-
-    def add(self, position=None):
-        self.impl.add(position)
 
 
 # --- ListColumn ---
@@ -283,7 +280,7 @@ class ListColumns(BaseListRowsColumns):
         """
         Adds a new column to the table.
         """
-        self.impl.add(position)
+        return self._wrap(self.impl.add(position))
 
 
 # --- ListRow ---
@@ -291,7 +288,12 @@ class ListRow(BaseListRowColumn):
     """
     Represents a row in a table.
     """
-    pass
+    @property
+    def columns(self):
+        """
+        A range of the row.
+        """
+        return ColumnsOfListRow(self)
 
 
 class ListRows(BaseListRowsColumns):
@@ -300,11 +302,70 @@ class ListRows(BaseListRowsColumns):
     """
     _wrap = ListRow
 
-    def add(self, position=None, insert=True):
+    def add(self, position=None, always_insert=True):
         """
         Adds a new row to the table.
         """
-        self.impl.add(position, insert)
+        return self._wrap(self.impl.add(position, always_insert))
+
+
+class ColumnOfListRow(xlmain.Range):
+    def __init__(self, rng, listrow):
+        self._lr = listrow
+        xlmain.Range.__init__(self, impl=rng.impl)
+        for lc in self._lr.parent.listcolumns:
+            if self.column == lc.range.column:
+                self._col_name = lc.name
+
+    @property
+    def parent(self):
+        return self._lr
+
+    @property
+    def column_name(self):
+        return self._col_name
+
+    def __repr__(self):
+        if not xlmain.PY3:
+            return u"<ColumnOfListRow [{1}]{0}!{2};{3}>".format(
+                self.sheet.name, self.sheet.book.name, self.address,
+                self.column_name
+                ).encode('utf-8')
+        else:
+            return "<ColumnOfListRow [{1}]{0}!{2};{3}>".format(
+                self.sheet.name, self.sheet.book.name, self.address,
+                self.column_name
+                )
+
+
+class ColumnsOfListRow(xlmain.Range):
+    """
+    A range of the row.
+    """
+    def __init__(self, listrow):
+        self._lr = listrow
+        self._colname2rng = {}
+        for rng in self._lr.range:
+            for lc in self._lr.parent.listcolumns:
+                if rng.column == lc.range.column:
+                    self._colname2rng[lc.name] = rng
+                    continue
+        xlmain.Range.__init__(self, impl=self._lr.range.impl)
+
+    def __getitem__(self, key):
+        if isinstance(key, str):
+            rng = self._colname2rng[key]
+        else:
+            rng = xlmain.Range.__getitem__(self, key)
+        return ColumnOfListRow(rng, self._lr)
+
+    def __iter__(self):
+        for i in range(len(self)):
+            yield ColumnOfListRow(self(i+1), self._lr)
+
+    @property
+    def parent(self):
+        return self._lr
 
 
 # --- QueryTable ---
