@@ -86,7 +86,7 @@ class ListObject(BaseTable):
     def listrows(self):
         return ListRows(self.xl.ListRows)
 
-    def unlink():
+    def unlink(self):
         self.xl.Unlink()
 
     @property
